@@ -1,4 +1,4 @@
-# [Tên hệ thống] — SE100 · Nhóm \_\_
+# [Quản lí đội tuyển thi đấu] — SE100 · Nhóm \_\_
 
 Huấn luyện viên sử dụng hệ thống để quản lý và vận hành quy trình nhân sự bài bản từ khâu tuyển chọn, thử việc, công nhận chính thức cho đến phân công thi đấu.
 
