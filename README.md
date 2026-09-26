@@ -16,7 +16,7 @@ Ha
 | Tên | GitHub | Chủ trì mốc |
 |---|---|---|
 | Hà Gia Bảo| Xoài1405 | M1: Yêu cầu |
-| | | M2: Mô hình hoá |
+| Hà Tuấn Hùng| mentallyillcoder | M2: Mô hình hoá |
 | | | M3–M4: Thiết kế |
 | | | M5: Giao hàng |
 
