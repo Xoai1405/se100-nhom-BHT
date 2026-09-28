@@ -17,7 +17,7 @@ Ha
 |---|---|---|
 | Hà Gia Bảo| Xoài1405 | M1: Yêu cầu |
 | Hà Tuấn Hùng| mentallyillcoder | M2: Mô hình hoá |
-| | | M3–M4: Thiết kế |
+| Phạm Đan Trường| thichcodedao2006 | M3–M4: Thiết kế |
 | | | M5: Giao hàng |
 
 ## URL
