@@ -1,14 +1,14 @@
-# [Quản lí đội tuyển thi đấu] — SE100 · Nhóm \_\_
+# [Nền tảng E-learning tích hợp Flashcard] — SE100 · Nhóm __
 
-Huấn luyện viên sử dụng hệ thống để quản lý và vận hành quy trình nhân sự bài bản từ khâu tuyển chọn, thử việc, công nhận chính thức cho đến phân công thi đấu.
+Học viên sử dụng hệ thống để đăng ký khóa học, học qua video bài giảng và bắt buộc hoàn thành bài kiểm tra ôn tập bằng bộ từ vựng (Flashcard) để mở khóa tiến trình. Học viên cũng có thể tự tạo bộ Flashcard cá nhân để tự học.
 
-Thành viên truy cập hệ thống để cập nhật thông tin cá nhân, theo dõi tiến trình đánh giá năng lực và nhận nhiệm vụ thi đấu từ ban huấn luyện.
+Giáo viên dùng hệ thống để xây dựng cấu trúc khóa học, tải lên video và biên soạn bộ Flashcard bắt buộc đính kèm cho từng bài học. Đồng thời, giáo viên có thể theo dõi tỷ lệ hoàn thành khóa học trung bình của học viên.
 
-Thủ quỹ dùng hệ thống để ghi nhận các khoản thu chi, theo dõi biến động số dư và minh bạch hóa ngân sách hoạt động của đội.
+Quản trị viên truy cập hệ thống để kiểm duyệt chất lượng nội dung (video, flashcard) trước khi cho phép phát hành, quản lý danh sách tài khoản và xử lý các báo cáo vi phạm liên quan đến khóa học.
 
-Về tài chính: Hệ thống tuyệt đối không cho phép phê duyệt hoặc giải ngân bất kỳ khoản chi nào vượt quá số dư hiện có của quỹ đội.
+Về tiến trình học: Hệ thống tuyệt đối không cho phép học viên mở khóa hoặc xem trước nội dung bài học tiếp theo nếu chưa đạt tỷ lệ hoàn thành bộ từ vựng (Flashcard) của bài học hiện tại theo quy định.
 
-Về quy trình: Hệ thống nghiêm cấm đưa thành viên vào danh sách thi đấu khi chưa hoàn thành đúng và đủ tiến trình duyệt theo thứ tự (Tuyển → Thử → Chính thức).
+Về toàn vẹn dữ liệu: Hệ thống nghiêm cấm giáo viên sửa hoặc xóa nội dung bài học/khóa học khi đang có người học dở dang. Quản trị viên chỉ được phép tạm đình chỉ, không được xóa vĩnh viễn khóa học đã có dữ liệu đăng ký của người học.
 
 ## Thành viên
 
