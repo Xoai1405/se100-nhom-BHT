@@ -8,6 +8,7 @@ export function QuizForm({
 }) {
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleOptionSelect = (questionId, optionIndex) => {
     setAnswers({ ...answers, [questionId]: optionIndex });
@@ -15,8 +16,14 @@ export function QuizForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await onSubmitQuiz(answers);
-    setResult(res);
+    setSubmitting(true);
+    try {
+      const res = await onSubmitQuiz(answers);
+      // res = null khi Backend trả lỗi (lỗi được hiển thị ở LearningPage)
+      if (res) setResult(res);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!isVideoWatched) {
@@ -89,11 +96,11 @@ export function QuizForm({
 
         <button
           type="submit"
-          disabled={Object.keys(answers).length < questions.length}
+          disabled={submitting || Object.keys(answers).length < questions.length}
           style={{
             padding: "10px 20px",
             background:
-              Object.keys(answers).length < questions.length
+              submitting || Object.keys(answers).length < questions.length
                 ? "#ccc"
                 : "#28a745",
             color: "#fff",
@@ -103,7 +110,7 @@ export function QuizForm({
             fontWeight: "bold",
           }}
         >
-          Nộp Bài
+          {submitting ? "Đang chấm..." : "Nộp Bài"}
         </button>
       </form>
 

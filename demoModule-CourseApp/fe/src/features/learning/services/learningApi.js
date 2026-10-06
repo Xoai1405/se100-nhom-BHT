@@ -1,7 +1,7 @@
 import api from "../../../services/apiConfig";
 
 // Bật true để test độc lập FE không cần Backend, bật false khi kết nối Spring Boot
-const USE_MOCK = true;
+export const USE_MOCK = false;
 
 const MOCK_COURSES = [
   { id: "react-101", title: "Lập trình React.js Cơ Bản" },
@@ -142,4 +142,19 @@ export const learningApi = {
     });
     return res.data;
   },
+
+  // 5. Reset tiến độ khóa học -> Backend trả về lộ trình mới
+  resetProgress: async (courseId) => {
+    if (USE_MOCK) return MOCK_LESSONS;
+    const res = await api.post(`/courses/${courseId}/reset-progress`);
+    return res.data;
+  },
+};
+
+// Lấy thông báo lỗi từ Backend (GlobalExceptionHandler trả về { message })
+export const getErrorMessage = (error) => {
+  if (error?.response?.data?.message) return error.response.data.message;
+  if (error?.code === "ERR_NETWORK")
+    return "Không kết nối được Backend (http://localhost:8080). Hãy kiểm tra server đã chạy chưa.";
+  return error?.message || "Đã có lỗi xảy ra";
 };

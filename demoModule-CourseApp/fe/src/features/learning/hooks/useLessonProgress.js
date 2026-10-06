@@ -1,5 +1,9 @@
-import { useState, useEffect } from "react";
-import { learningApi } from "../services/learningApi";
+import { useState, useEffect, useCallback } from "react";
+import {
+  learningApi,
+  getErrorMessage,
+  USE_MOCK,
+} from "../services/learningApi";
 import { storage } from "../../../utils/storage";
 
 export const useLessonProgress = () => {
@@ -8,42 +12,71 @@ export const useLessonProgress = () => {
   const [lessons, setLessons] = useState([]);
   const [activeLessonId, setActiveLessonId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  // Tăng mỗi lần reset để các form (QuizForm) được làm mới
+  const [progressVersion, setProgressVersion] = useState(0);
+
+  const clearError = useCallback(() => setError(""), []);
+
+  // Cập nhật state + lưu cache localStorage
+  const applyLessons = useCallback((courseId, data, resetActive = false) => {
+    setLessons(data);
+    storage.saveCourseProgress(courseId, data);
+    if (resetActive) setActiveLessonId(data[0]?.id || "");
+  }, []);
 
   // Load danh sách khóa học
   useEffect(() => {
-    learningApi.getCourses().then((data) => {
-      setCourses(data);
-      if (data.length > 0) setSelectedCourseId(data[0].id);
-    });
+    learningApi
+      .getCourses()
+      .then((data) => {
+        setCourses(data);
+        if (data.length > 0) setSelectedCourseId(data[0].id);
+      })
+      .catch((err) => setError(getErrorMessage(err)));
   }, []);
 
   // Load bài học khi chọn khóa học
   useEffect(() => {
     if (!selectedCourseId) return;
 
-    setLoading(true);
-    // Kiểm tra cache localstorage trước
-    const savedProgress = storage.getCourseProgress(selectedCourseId);
+    const cached = storage.getCourseProgress(selectedCourseId);
 
-    if (savedProgress) {
-      setLessons(savedProgress);
-      setActiveLessonId(savedProgress[0]?.id || "");
-      setLoading(false);
-    } else {
-      learningApi.getLessonsByCourse(selectedCourseId).then((data) => {
-        setLessons(data);
-        if (data.length > 0) setActiveLessonId(data[0].id);
-        storage.saveCourseProgress(selectedCourseId, data);
-        setLoading(false);
-      });
+    // Chế độ Mock: không có Backend lưu tiến độ -> dùng cache localStorage
+    if (USE_MOCK && cached) {
+      setLessons(cached);
+      setActiveLessonId(cached[0]?.id || "");
+      return;
     }
-  }, [selectedCourseId]);
+
+    // Có Backend: Backend là nguồn dữ liệu chính, cache chỉ để dự phòng
+    setLoading(true);
+    learningApi
+      .getLessonsByCourse(selectedCourseId)
+      .then((data) => applyLessons(selectedCourseId, data, true))
+      .catch((err) => {
+        setError(getErrorMessage(err));
+        if (cached) {
+          setLessons(cached);
+          setActiveLessonId(cached[0]?.id || "");
+        } else {
+          setLessons([]);
+          setActiveLessonId("");
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [selectedCourseId, applyLessons]);
 
   const activeLesson = lessons.find((l) => l.id === activeLessonId) || null;
 
   // Xử lý xem xong Video
   const handleVideoCompleted = async (lessonId) => {
-    await learningApi.markVideoWatched(lessonId);
+    try {
+      await learningApi.markVideoWatched(lessonId);
+    } catch (err) {
+      setError(getErrorMessage(err));
+      return;
+    }
 
     setLessons((prev) => {
       const updated = prev.map((item) =>
@@ -55,12 +88,19 @@ export const useLessonProgress = () => {
   };
 
   // Xử lý nộp bài Quiz & mở khóa bài tiếp theo
+  // Trả về kết quả, hoặc null nếu có lỗi (lỗi hiển thị qua state `error`)
   const handleQuizSubmit = async (lessonId, userAnswers) => {
-    const result = await learningApi.submitQuiz(
-      lessonId,
-      userAnswers,
-      activeLesson?.questions || [],
-    );
+    let result;
+    try {
+      result = await learningApi.submitQuiz(
+        lessonId,
+        userAnswers,
+        activeLesson?.questions || [],
+      );
+    } catch (err) {
+      setError(getErrorMessage(err));
+      return null;
+    }
 
     if (result.isPassed) {
       setLessons((prev) => {
@@ -74,7 +114,7 @@ export const useLessonProgress = () => {
           status: "COMPLETED",
         };
 
-        // Mở khóa bài tiếp theo (nếu có)
+        // Mở khóa bài tiếp theo (nếu có) - khớp với nextLessonId Backend trả về
         if (currentIndex + 1 < updated.length) {
           updated[currentIndex + 1] = {
             ...updated[currentIndex + 1],
@@ -90,11 +130,21 @@ export const useLessonProgress = () => {
     return result;
   };
 
-  // Reset tiến độ test lại từ đầu
-  const resetProgress = () => {
+  // Reset tiến độ: gọi Backend reset, rồi nạp lại lộ trình mới
+  const resetProgress = async () => {
     if (!selectedCourseId) return;
-    storage.clearCourseProgress(selectedCourseId);
-    window.location.reload();
+    setLoading(true);
+    try {
+      storage.clearCourseProgress(selectedCourseId);
+      const data = await learningApi.resetProgress(selectedCourseId);
+      applyLessons(selectedCourseId, data, true);
+      setProgressVersion((v) => v + 1);
+      setError("");
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
@@ -105,6 +155,9 @@ export const useLessonProgress = () => {
     activeLesson,
     setActiveLessonId,
     loading,
+    error,
+    clearError,
+    progressVersion,
     handleVideoCompleted,
     handleQuizSubmit,
     resetProgress,

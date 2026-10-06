@@ -17,6 +17,9 @@ export function LearningPage() {
     handleVideoCompleted,
     handleQuizSubmit,
     resetProgress,
+    error,
+    clearError,
+    progressVersion,
   } = useLessonProgress();
 
   const [activeTab, setActiveTab] = useState("video"); // 'video' hoặc 'quiz'
@@ -55,6 +58,35 @@ export function LearningPage() {
           🔄 Reset Tiến Độ Dữ Liệu
         </button>
       </div>
+
+      {error && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "10px 15px",
+            marginBottom: "15px",
+            background: "#f8d7da",
+            color: "#721c24",
+            borderRadius: "6px",
+          }}
+        >
+          <span>⚠️ {error}</span>
+          <button
+            onClick={clearError}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#721c24",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <CourseSelector
         courses={courses}
@@ -127,6 +159,7 @@ export function LearningPage() {
 
               {activeTab === "quiz" && (
                 <QuizForm
+                  key={`${activeLesson.id}-${progressVersion}`}
                   questions={activeLesson.questions}
                   isVideoWatched={activeLesson.videoWatched}
                   isPassed={activeLesson.quizPassed}
